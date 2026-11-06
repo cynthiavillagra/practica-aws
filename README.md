@@ -20,7 +20,7 @@ Costo: $0 dentro de la capa gratuita (Lambda: 1 millón de pedidos por mes; ECR:
 
 ## Parte docente: publicar el modelo (una vez)
 
-Requisitos: Docker Desktop abierto y AWS CLI v2 configurada con `aws configure` (las claves NO van al repo).
+**Opción con Docker en la PC.** Requisitos: Docker Desktop abierto y AWS CLI v2 configurada con `aws configure` (las claves NO van al repo).
 
 ```powershell
 cd deployment\sklearn
@@ -42,6 +42,29 @@ aws ecr get-login-password --region $REGION | docker login --username AWS --pass
 docker tag ml-sklearn:latest "${REPO}:latest"
 docker push "${REPO}:latest"
 ```
+
+### Opción sin Docker en la PC: AWS CloudShell
+
+CloudShell es una terminal en el navegador, dentro de la consola de AWS. No tiene costo adicional, ya tiene Docker, git y la AWS CLI, y ya está autenticada con tu cuenta. Así no hace falta instalar nada ni crear claves de acceso.
+
+1. En la consola, elegir la región **Ohio (us-east-2)** arriba a la derecha y abrir **CloudShell** (ícono `>_` de la barra superior).
+2. Correr:
+
+```bash
+git clone https://github.com/cynthiavillagra/practica-aws.git
+cd practica-aws/deployment/sklearn
+
+REPO=$(aws sts get-caller-identity --query Account --output text).dkr.ecr.us-east-2.amazonaws.com
+docker build -t ml-sklearn -f dockerfile .
+aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin $REPO
+docker tag ml-sklearn:latest $REPO/ml-sklearn:latest
+docker push $REPO/ml-sklearn:latest
+
+# Al terminar, liberar el espacio de Docker de CloudShell
+docker system prune -af
+```
+
+Si Lambda rechaza la imagen con "image manifest media type not supported", hay que volver a construirla con `docker buildx build --provenance=false -t ml-sklearn -f dockerfile .` y subirla de nuevo.
 
 ### Crear la Lambda (consola web, región Ohio / us-east-2)
 
