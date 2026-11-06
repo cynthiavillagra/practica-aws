@@ -1,2 +1,6 @@
-scikit-learn
-joblib
+# Mismas versiones que se usaron para entrenar el modelo.
+# Si no coinciden, joblib puede fallar al cargar el .joblib.
+scikit-learn==1.7.2
+joblib==1.6.0
+numpy==2.2.6
+scipy==1.15.3

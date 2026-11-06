@@ -1,11 +1,13 @@
-
+# Imagen base oficial de AWS para Lambda con Python 3.12
 FROM public.ecr.aws/lambda/python:3.12
 
+# 1. Dependencias (--no-cache-dir achica la imagen)
 COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN pip install -r requirements.txt
-
+# 2. Código y modelo, en la carpeta donde Lambda busca el handler
 COPY lambda_function.py ${LAMBDA_TASK_ROOT}
 COPY model_sklearn.joblib ${LAMBDA_TASK_ROOT}
 
+# 3. Función que Lambda ejecuta en cada pedido: archivo.función
 CMD ["lambda_function.lambda_handler"]
